@@ -116,7 +116,11 @@ class URLInput(Input):
 
 
 class DownloadList(ListView):
-    BINDINGS = [Binding('enter', 'app.details', 'Details', show=False)]
+    BINDINGS = [
+        Binding('enter', 'app.details', 'Details', show=False),
+        Binding('j,J', 'cursor_down', show=False),
+        Binding('k,K', 'cursor_up', show=False),
+    ]
 
 
 class CommandFooterKey(FooterKey):
@@ -160,7 +164,7 @@ class DownloadRow(ListItem):
 
 
 HELP = '''QUEUE CONTROLS
-↑ / ↓       Select a download (↑ from the URL box enters the queue)
+↑ / ↓, k / j Select a download (↑ from the URL box enters the queue)
 p / Space   Pause or resume the selected entry
 r           Retry now / resume a cancelled entry
 c           Cancel; keep its entry and partial files

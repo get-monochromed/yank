@@ -18,7 +18,7 @@ Yank uses your terminal’s ANSI palette and default background, including its t
 
 | Key | Action |
 | --- | --- |
-| Up / Down | Select a queue entry; Up from the URL field enters the queue |
+| Up / Down, k / j | Select a queue entry; Up from the URL field enters the queue |
 | p / Space | Pause / resume |
 | r | Retry immediately / resume a cancelled job |
 | c | Cancel the download, retaining its entry and partial files |

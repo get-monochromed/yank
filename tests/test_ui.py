@@ -31,6 +31,14 @@ async def test_mouse_keyboard_input_and_row_progress(tmp_path):
         assert app.screen.styles.background == Color.parse('ansi_default')
         await pilot.click(f'#job-{first.id}')
         assert isinstance(app.focused, ListView)
+        queue = app.query_one(ListView)
+        assert queue.index == 0
+        await pilot.press('j')
+        assert queue.index == 1
+        await pilot.press('k')
+        assert queue.index == 0
+        await pilot.press('J', 'K')
+        assert queue.index == 0
         await pilot.press('c')
         await pilot.pause()
         assert first.status == 'cancelled'
@@ -39,8 +47,8 @@ async def test_mouse_keyboard_input_and_row_progress(tmp_path):
         assert second.id not in engine.jobs
         await pilot.press('i')
         assert isinstance(app.focused, Input)
-        await pilot.press('c')
-        assert app.query_one(Input).value == 'c'
+        await pilot.press('c', 'j', 'k', 'J', 'K')
+        assert app.query_one(Input).value == 'cjkJK'
         app.query_one(Input).value = 'https://example.com/new'
         await pilot.press('enter')
         await pilot.pause()
