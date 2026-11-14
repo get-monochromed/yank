@@ -12,7 +12,7 @@ Paste a video URL in the box at the bottom and press **Enter**. Multiple whitesp
 
 The centered block-letter header sits above the download queue. Small terminals automatically get a compact header. Queue entries are one line each, with the title followed by a divider and transfer details. The duplicate toolbar is gone: the single-line footer is the action bar. Add, Paste, and dialog Close buttons are all one terminal row high, as is the URL field.
 
-Yank inherits your terminal font; it has no independent pixel/point size. Change the font in your terminal profile if you want smaller or larger text.
+Yank uses your terminal’s ANSI palette and default background, including its transparency and blur settings. Yank inherits your terminal font; it has no independent pixel/point size. Change the font in your terminal profile if you want smaller or larger text.
 
 ## Controls
 

@@ -7,6 +7,7 @@ from yank.engine import Engine
 
 
 async def test_mouse_keyboard_input_and_row_progress(tmp_path):
+    from textual.color import Color
     from yank.ui import YankApp, DownloadRow, ProgressLine
     config = Config(state_dir=tmp_path/'state', path=tmp_path/'config.toml', download_dir=tmp_path/'downloads', ytdlp='/usr/bin/false')
     engine = Engine(config)
@@ -25,7 +26,9 @@ async def test_mouse_keyboard_input_and_row_progress(tmp_path):
         assert app.query_one(Input).region.bottom <= 41
         line = app.query_one(ProgressLine).render()
         assert '[literal]' in line.plain
-        assert any(span.style and 'on #' in str(span.style) for span in line.spans)
+        assert any(span.style == 'yellow reverse' for span in line.spans)
+        assert app.theme == 'ansi-dark'
+        assert app.screen.styles.background == Color.parse('ansi_default')
         await pilot.click(f'#job-{first.id}')
         assert isinstance(app.focused, ListView)
         await pilot.press('c')

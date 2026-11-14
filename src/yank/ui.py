@@ -29,8 +29,11 @@ BANNER = ''' █████ █████                   █████
     ░███    ███░░███  ░███ ░███░███░░███
     █████  ░░████████ ████ █████████ █████
    ░░░░░    ░░░░░░░░ ░░░░ ░░░░░░░░ ░░░░░'''
-COLORS = {'done': '#275644', 'paused': '#424148', 'cancelled': '#4a3440',
-          'retrying': '#674d2a', 'queued': '#283646', 'processing': '#42466b'}
+
+STATUS_COLORS = {
+    'done': 'green', 'paused': 'yellow', 'cancelled': 'red',
+    'retrying': 'yellow', 'queued': 'blue', 'processing': 'magenta',
+}
 
 
 def clean(text: str) -> str:
@@ -61,8 +64,6 @@ class ProgressLine(Static):
         job = self.job
         width = max(1, self.size.width)
         selected = bool(self.parent and self.parent.has_class('-highlight'))
-        base = '#18232c' if selected else '#121a22'
-        fill = COLORS.get(job.status, '#23545c')
         percent = f'{job.progress:6.1%}' if job.total or job.status == 'done' else '   --%'
         prefix = '› ' if selected else '  '
         meta = f'{percent.strip()} {job.status.upper()} · {size(job.downloaded)}/{size(job.total) if job.total else "?"}'
@@ -74,12 +75,11 @@ class ProgressLine(Static):
             meta += ' · finalizing'
         meta += f' · {job.backend} · attempt {job.attempt}'
         title_width = max(min(24, width // 2), width - cell_len(meta) - 3)
-        result = Text(prefix + clean(job.title), style='#e5edf3')
+        result = Text(prefix + clean(job.title))
         result.truncate(title_width, overflow='ellipsis', pad=True)
-        result.append(' │ ', style='#587080')
-        result.append(meta, style='#9dafbf')
+        result.append(' │ ')
+        result.append(meta)
         result.truncate(width, overflow='ellipsis', pad=True)
-        result.stylize(f'on {base}')
         # Rich offsets count characters, while a terminal measures cell widths.
         target = int(width * job.progress)
         cells = boundary = 0
@@ -88,7 +88,7 @@ class ProgressLine(Static):
                 break
             cells += cell_len(character)
             boundary += 1
-        result.stylize(f'on {fill}', 0, boundary)
+        result.stylize(f'{STATUS_COLORS.get(job.status, "cyan")} reverse', 0, boundary)
         return result
 
 
@@ -247,32 +247,32 @@ class YankApp(App):
     TITLE = 'Yank'
     ENABLE_COMMAND_PALETTE = False
     CSS = '''
-    Screen { background: #0b1117; color: #dce7ee; layout: vertical; }
-    #brand { height: auto; padding: 0 1; border-bottom: solid #263849; align: center top; }
-    #banner { width: auto; height: 8; color: #77d4c8; text-wrap: nowrap; }
-    #tagline { width: auto; height: 1; color: #849aac; }
-    #summary { height: 1; padding: 0 1; color: #9bb2c4; }
+    Screen { background: ansi_default; color: ansi_default; layout: vertical; }
+    #brand { height: auto; padding: 0 1; border-bottom: solid ansi_cyan; align: center top; }
+    #banner { width: auto; height: 8; color: ansi_cyan; text-wrap: nowrap; }
+    #tagline { width: auto; height: 1; color: ansi_blue; }
+    #summary { height: 1; padding: 0 1; color: ansi_cyan; }
     #queue { height: 1fr; margin: 0 1; background: transparent; border: none; }
     #queue:focus { border: none; }
     DownloadRow { height: 1; margin: 0; padding: 0; background: transparent; }
     DownloadRow.-highlight, DownloadRow:hover { background: transparent; }
     ProgressLine { height: 1; width: 1fr; }
-    #empty { height: 1fr; content-align: center middle; color: #7d93a6; }
+    #empty { height: 1fr; content-align: center middle; color: ansi_blue; }
     #input-row { height: 2; margin: 0 1; }
     #input-main { width: 1fr; height: 2; }
-    #url { height: 1; padding: 0 1; border: none; background: #172630; }
-    #url:focus { background: #1c303b; }
-    #inspector { height: 1; color: #9a937f; text-wrap: nowrap; text-overflow: ellipsis; }
+    #url { height: 1; padding: 0 1; border: none; background: ansi_default; }
+    #url:focus { background: ansi_default; }
+    #inspector { color: ansi_yellow; height: 1; text-wrap: nowrap; text-overflow: ellipsis; }
     #input-actions { width: 9; height: 2; margin-left: 1; }
-    #input-actions Button, #close-dialog { min-width: 0; width: 9; height: 1; padding: 0; border: none; background: #244b4a; text-style: none; }
-    #input-actions Button:hover, #close-dialog:hover { background: #32605b; }
-    Footer { height: 1; background: #101b25; color: #9bb2c4; }
+    #input-actions Button, #close-dialog { min-width: 0; width: 9; height: 1; padding: 0; border: none; background: ansi_default; color: ansi_cyan; text-style: bold; }
+    #input-actions Button:hover, #close-dialog:hover { background: ansi_default; color: ansi_bright_cyan; text-style: bold underline; }
+    Footer { height: 1; background: ansi_default; }
     Screen.compact #banner { height: 1; }
     Screen.compact #tagline { display: none; }
     Screen.compact #brand { height: 2; }
-    InfoDialog { align: center middle; background: #000000 70%; }
-    #dialog { width: 88%; max-width: 108; height: 88%; border: round #77d4c8; background: #101a24; padding: 1 2; }
-    #dialog-title { height: 1; color: #77d4c8; text-style: bold; }
+    InfoDialog { align: center middle; background: ansi_default; }
+    #dialog { width: 88%; max-width: 108; height: 88%; border: round ansi_cyan; background: ansi_default; padding: 1 2; }
+    #dialog-title { height: 1; color: ansi_cyan; text-style: bold; }
     #dialog-scroll { height: 1fr; }
     #dialog-body { height: auto; }
     #close-dialog { margin-top: 1; }
@@ -294,6 +294,7 @@ class YankApp(App):
 
     def __init__(self, config: Config, urls=(), engine: Engine | None = None):
         super().__init__()
+        self.theme = 'ansi-dark'
         self.engine = engine or Engine(config)
         self.initial_urls = urls
         self._last_revision = -1
